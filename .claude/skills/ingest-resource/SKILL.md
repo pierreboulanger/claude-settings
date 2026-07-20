@@ -34,7 +34,7 @@ This skill runs in three places with different capabilities. Don't ask Pierre wh
    If the push to `main` is rejected because something else pushed to `main` in the meantime (e.g. a concurrent Mac session) — confirmed workable: `git fetch origin main && git rebase origin/main`, then push both `main` and the branch again. This resolves cleanly when there's no actual file-level conflict; if there is one, resolve it normally before pushing.
 
    There **is** a Stop hook in this environment (`~/.claude/stop-hook-git-check.sh`), but don't mistake it for Mac's autosync — it only checks/nags on git state (uncommitted changes, unpushed commits, unverified commit authorship) and never commits or pushes anything itself. Its "Stop hook feedback" messages are a checker complaining, not a confirmation that anything synced — the actual `git add`/`commit`/`push` is still entirely on you. If it flags something as unpushed/unverified, check whether the branch ref is just stale (per above) before assuming the hook's suggested fix (e.g. rewriting commit authorship) is correct — it frequently isn't: don't blindly amend/rebase authorship on commits that aren't yours (a Mac session's own commits, correctly attributed to Pierre, are not a problem to "fix"). If the push fails outright (auth, network), say so plainly: this sandbox is ephemeral, and a commit that only exists locally here is lost once the session ends — it is not durably saved until the push actually succeeds.
-5. Mac-only files (health.md, portfolio-manager/ except materials.md) are excluded from the GitHub repo the same way they're excluded from mobile — see §2a, which applies here too, not just to mobile.
+5. Mac-only files (health.md, portfolio-manager/ except resources-finance.md) are excluded from the GitHub repo the same way they're excluded from mobile — see §2a, which applies here too, not just to mobile.
 
 ### Mobile flow (no write path — chat-only, Pierre does the write)
 
@@ -42,7 +42,7 @@ This skill runs in three places with different capabilities. Don't ask Pierre wh
 2. Do §1 (fetch), §3-6 (read context from whatever was attached, synthesize, discuss, draft) exactly as on Mac — none of that requires writing.
 3. At what would be §7, there is no write step. Give Pierre the exact final entry text and target file, and tell him plainly he needs to add it himself — either by pasting it into GitHub's own web/mobile file editor, or by holding onto it (or asking you to repeat it) for his next Mac session. Do not say it's "queued" or "saved" — it isn't, until he does that manually.
 
-**Mac-only files on mobile or Cloud:** the repo excludes `health.md` and everything in `portfolio-manager/` except `materials.md` — real financial-position and health data that intentionally never leaves the Mac. `index.md` marks exactly which files are repo-synced vs. Mac-only. If step 2 below determines a Mac-only file is the right target, don't draft repo content for it outside the Mac — just show Pierre the synthesis and tell him to capture it himself next time he's on Mac (there is no automated queue — see §2a).
+**Mac-only files on mobile or Cloud:** the repo excludes `health.md` and everything in `portfolio-manager/` except `resources-finance.md` — real financial-position and health data that intentionally never leaves the Mac. `index.md` marks exactly which files are repo-synced vs. Mac-only. If step 2 below determines a Mac-only file is the right target, don't draft repo content for it outside the Mac — just show Pierre the synthesis and tell him to capture it himself next time he's on Mac (there is no automated queue — see §2a).
 
 ## 1. Get the content
 
@@ -94,7 +94,7 @@ Don't attempt to write extracted content anywhere in the repo — there's no rep
 
 Before drafting anything — before even deciding what's worth keeping — read the existing material in the destination area, not just the single file you expect to append to:
 
-- If the target lives in a folder (e.g. `portfolio-manager/`), read every file in that folder you have access to, not only the one you're about to write into. On Mac, that's the full folder (`snapshot.md`, `profile.md`, `cashflow.md`, `materials.md`, `change-log.md`). On mobile or Cloud, it's whatever's repo-synced — see §0's limitations for each.
+- If the target lives in a folder (e.g. `portfolio-manager/`), read every file in that folder you have access to, not only the one you're about to write into. On Mac, that's the full folder (`snapshot.md`, `profile.md`, `cashflow.md`, `resources-finance.md`, `change-log.md`). On mobile or Cloud, it's whatever's repo-synced — see §0's limitations for each.
 - If the target is a standalone file (`tools.md`, `business.md`, `product-playbooks.md`, `health.md`), read that file in full.
 - This applies to every domain, not just investments. If a domain later grows into a folder with several files (e.g. health splits into diet.md / labs.md / protocols.md), read all of them the same way — the rule is "read the destination area," not "read portfolio-manager specifically."
 
@@ -115,11 +115,12 @@ Apply the per-domain bar below when deciding what's even worth this treatment �
 
 Once it's clear which file this is headed for, apply that file's specific bar on top of the general one above — this is what keeps entries sharp instead of generic:
 
-- **`portfolio-manager/` (investments)** — Mac-only except `materials.md`. Keep specific figures with their date/context, a thesis *with* its reasoning, tax/regulatory facts, and clear confidence framing. Drop generic market commentary, price predictions with no stated mechanism, hype. Route within the folder (Mac only): current portfolio figures → `snapshot.md` (+ dated line in `change-log.md`); thesis/tax/framework facts → `profile.md`; net-worth or cash-flow readings → `cashflow.md`; macro-event analyses and research-source assessments → `materials.md` (repo-synced — this is the one mobile can actually reach). Never write history into `snapshot.md`.
+- **`portfolio-manager/` (investments)** — Mac-only except `resources-finance.md`. Keep specific figures with their date/context, a thesis *with* its reasoning, tax/regulatory facts, and clear confidence framing. Drop generic market commentary, price predictions with no stated mechanism, hype. Route within the folder (Mac only): current portfolio figures → `snapshot.md` (+ dated line in `change-log.md`); thesis/tax/framework facts → `profile.md`; net-worth or cash-flow readings → `cashflow.md`; macro-event analyses and research-source assessments → `resources-finance.md` (repo-synced — this is the one mobile can actually reach). Never write history into `snapshot.md`.
 - **`business.md`** (CRO / EPAM work) — keep test methodology, sample sizes, effect sizes/conversion rates, named frameworks (ICE, Fogg, Cialdini, etc.) and tools, and results — flagged "single data point" when the source doesn't establish it as a real benchmark. Drop generic "always A/B test" advice and conversion-rate claims with no sample size attached.
 - **`health.md`** — Mac-only. Keep specific products, doses, protocols, mechanisms, and contraindications/caveats. Drop generic wellness advice not tied to a specific recommendation. On mobile or Cloud, see §2a — capture only, never extract.
 - **`product-playbooks.md`** — keep concrete stack/tool choices with pricing tiers and upgrade thresholds, workflow steps, build-decision criteria. Drop generic productivity advice not tied to a specific stack decision.
 - **`tools.md`** — keep pricing, limits, benchmark numbers, licensing, named caveats/failure modes. Drop tool mentions with no concrete detail.
+- **`kb-system.md`** (the knowledge base itself) — the routing home for RAG / memory-system / knowledge-tooling resources (LLM wikis, agent memory, retrieval patterns), which previously defaulted to `tools.md`. Keep adoption criteria and thresholds, measured limits, failure modes, and concrete workflow mechanics; drop generic "second brain" productivity hype. Ingested entries land under `## Patterns & tools evaluated` or `## Ingestion stack` only — the `## Decisions` (append-only, dated) and `## Recall misses` sections are maintained by working sessions, never by ingestion.
 
 No bar listed above for a file → apply the general bar only; don't invent domain criteria for files not covered here.
 
@@ -145,7 +146,7 @@ Read the target file before drafting, if you haven't already in §3, and mirror 
 - **Source:** <url or "pasted transcript"> — added <YYYY-MM-DD>
 ```
 
-Keep this entry terse regardless of how long the §4-5 discussion ran — the file entry is the archival record, not a transcript of the conversation. Use the destination file's own existing tag convention here (e.g. `materials.md`'s [Explicit]/[Likely]/[Unverified]), which may differ from the [Certain]/[Likely]/[Guessing] used in the chat synthesis — that's expected, not a bug: chat uses Pierre's global vocabulary, the file uses whatever convention its existing entries already established.
+Keep this entry terse regardless of how long the §4-5 discussion ran — the file entry is the archival record, not a transcript of the conversation. Use the destination file's own existing tag convention here (e.g. `resources-finance.md`'s [Explicit]/[Likely]/[Unverified]), which may differ from the [Certain]/[Likely]/[Guessing] used in the chat synthesis — that's expected, not a bug: chat uses Pierre's global vocabulary, the file uses whatever convention its existing entries already established.
 
 Whatever the shape, every entry ends with a source + absolute date line (today's real date, never "today"). If the resource contradicts or updates an existing entry, draft an in-place update to that entry and state explicitly what changes — never leave two conflicting entries in the file.
 
