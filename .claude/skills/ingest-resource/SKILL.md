@@ -160,7 +160,7 @@ Before touching any file, show Pierre:
 
 Ask with AskUserQuestion — options like "Write it", "Different file", "Trim it", "Skip". Apply whatever he picks and re-confirm if the text changed materially. Only after approval, write with local `Write`/`Edit`, then:
 
-- **On Mac:** tell Pierre the entry landed in the file — the `kb-autosync.sh` Stop hook commits and pushes it to `origin/main` automatically at end of session and reports what it did in the transcript; no manual git step needed.
+- **On Mac:** tell Pierre the entry landed in the file — the `kb-autosync.sh` Stop hook commits and pushes it to `origin/main` automatically as soon as the current response ends (Stop hooks fire after every completed response, not at session end) and reports what it did in the transcript; no manual git step needed.
 - **On Cloud:** `git add`/`commit`/`push origin main` yourself, right after writing. See §0's Cloud flow for the full mechanics (push straight to `main`, keep the branch ref in sync, what to do if the push is rejected, and the Stop hook's actual behavior) — followed here rather than repeated, so there's one source of truth instead of two that can drift out of sync.
 
 On mobile, there is no write step — see the mobile flow in §0 instead.
