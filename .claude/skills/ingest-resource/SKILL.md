@@ -56,7 +56,7 @@ Detect the source type from the URL and apply the matching method — check this
 | Facebook | SocialKit MCP | SocialKit MCP (untested — try it) | SocialKit MCP |
 | X / Twitter | SocialKit skill (`engagement-analysis` for a single tweet, `channel-research` for a profile/recent-tweets list) — **Mac only, MCP has no X coverage** | Ask Pierre to paste — no automated path exists | Ask Pierre to paste — no automated path exists on mobile |
 | LinkedIn | SocialKit skill (`engagement-analysis` for a single post, `video-transcripts` for a video post) — **Mac only, MCP has no LinkedIn coverage** | Ask Pierre to paste — no automated path exists | Ask Pierre to paste — no automated path exists on mobile |
-| Reddit | Append `.json` to the URL, fetch with WebFetch | same | same |
+| Reddit | Claude in Chrome extension → paste the content (WebFetch of `.json` is blocked at the gateway as of 2026-07-19; retest before assuming) | Ask Pierre to paste — no Chrome extension in the sandbox | same |
 | Threads | Ask Pierre to paste — no automated method exists | same | same |
 | Podcast (non-YouTube, e.g. Spotify/Apple) | Ask Pierre to paste — not covered by SocialKit | same | same |
 | Web article / docs page | WebFetch directly | WebFetch directly (likely works — routed differently from a raw sandboxed network call, but not directly confirmed) | same |
