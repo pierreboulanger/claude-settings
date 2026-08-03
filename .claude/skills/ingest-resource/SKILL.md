@@ -34,7 +34,7 @@ This skill runs in three places with different capabilities. Don't ask Pierre wh
    If the push to `main` is rejected because something else pushed to `main` in the meantime (e.g. a concurrent Mac session) — confirmed workable: `git fetch origin main && git rebase origin/main`, then push both `main` and the branch again. This resolves cleanly when there's no actual file-level conflict; if there is one, resolve it normally before pushing.
 
    There **is** a Stop hook in this environment (`~/.claude/stop-hook-git-check.sh`), but don't mistake it for Mac's autosync — it only checks/nags on git state (uncommitted changes, unpushed commits, unverified commit authorship) and never commits or pushes anything itself. Its "Stop hook feedback" messages are a checker complaining, not a confirmation that anything synced — the actual `git add`/`commit`/`push` is still entirely on you. If it flags something as unpushed/unverified, check whether the branch ref is just stale (per above) before assuming the hook's suggested fix (e.g. rewriting commit authorship) is correct — it frequently isn't: don't blindly amend/rebase authorship on commits that aren't yours (a Mac session's own commits, correctly attributed to Pierre, are not a problem to "fix"). If the push fails outright (auth, network), say so plainly: this sandbox is ephemeral, and a commit that only exists locally here is lost once the session ends — it is not durably saved until the push actually succeeds.
-5. Mac-only files (health.md, portfolio-manager/ except resources-finance.md) are excluded from the GitHub repo the same way they're excluded from mobile — see §2a, which applies here too, not just to mobile.
+5. Mac-only files — **narrowed 2026-08-02**: only `portfolio-manager/change-log.md`, `portfolio-manager/open-questions.md`, and `portfolio-manager/archive/` are still excluded from the GitHub repo (kept Mac-only by design — `index.md` explains which files and why). Everything else — including `snapshot.md`, `profile.md`, `net-worth.md`, `cashflow.md`, and `health.md` — is now repo-synced and reachable from Cloud/mobile. See §2a for the remaining Mac-only targets.
 
 ### Mobile flow (no write path — chat-only, Pierre does the write)
 
@@ -42,7 +42,7 @@ This skill runs in three places with different capabilities. Don't ask Pierre wh
 2. Do §1 (fetch), §3-6 (read context from whatever was attached, synthesize, discuss, draft) exactly as on Mac — none of that requires writing.
 3. At what would be §7, there is no write step. Give Pierre the exact final entry text and target file, and tell him plainly he needs to add it himself — either by pasting it into GitHub's own web/mobile file editor, or by holding onto it (or asking you to repeat it) for his next Mac session. Do not say it's "queued" or "saved" — it isn't, until he does that manually.
 
-**Mac-only files on mobile or Cloud:** the repo excludes `health.md` and everything in `portfolio-manager/` except `resources-finance.md` — real financial-position and health data that intentionally never leaves the Mac. `index.md` marks exactly which files are repo-synced vs. Mac-only. If step 2 below determines a Mac-only file is the right target, don't draft repo content for it outside the Mac — just show Pierre the synthesis and tell him to capture it himself next time he's on Mac (there is no automated queue — see §2a).
+**Mac-only files on mobile or Cloud (narrowed 2026-08-02):** the repo now excludes only `portfolio-manager/change-log.md`, `open-questions.md`, and `archive/` (kept Mac-only by design — `index.md` covers which and why). `snapshot.md`, `profile.md`, `net-worth.md`, `cashflow.md`, and `health.md` **are now repo-synced and fully readable/writable from Cloud (and readable from mobile via "Add from GitHub")**. `index.md` marks exactly which files are repo-synced vs. Mac-only. Two consequences: (a) if the right target is one of the still-Mac-only files, don't draft repo content for it off-Mac — show Pierre the synthesis and have him capture it on Mac (no automated queue — see §2a); (b) **the audit-trail invariant is now split**: `change-log.md` is Mac-only but `snapshot.md`/`profile.md` are synced, so a Cloud/mobile edit to a synced portfolio file *cannot* write its paired `change-log.md` entry — flag that the change-log line is owed on Mac rather than silently skipping it.
 
 ## 1. Get the content
 
@@ -83,18 +83,19 @@ Do this routing decision *before* extraction, not after — §3 below needs to k
 
 This works without ever editing this skill because step 7 below writes back to `index.md` whenever routing changes — the index you read here is kept current by this same skill's own output.
 
-### 2a. Target is a Mac-only file, and you're on mobile or Cloud
+### 2a. Target is a still-Mac-only file, and you're on mobile or Cloud
 
-Don't attempt to write extracted content anywhere in the repo — there's no repo-synced file that's the right home, by design (these files are gitignored, so a Cloud clone doesn't have them either, and mobile has no write path regardless — see §0). Instead:
+This now applies to a **much smaller set** (2026-08-02): only `change-log.md`, `open-questions.md`, and `archive/`. Most portfolio-manager files (`snapshot.md`, `profile.md`, `net-worth.md`, `cashflow.md`) and `health.md` are repo-synced — on Cloud, write to them normally per §7; on mobile, they're readable via "Add from GitHub" and Pierre does the write. This section covers only the three still-excluded files. For those, there's no repo-synced home (gitignored, so a Cloud clone doesn't have them; mobile has no write path) — so:
 
 1. Show Pierre what you found — the synthesis (§4) still applies in full.
 2. Tell him plainly: this needs to go into `<target file guess>` next time he's on Mac. There is no automated queue — give him the source URL and a one-line context note in chat so he (or a future Mac session, if he pastes this back) can capture it then. Don't claim it's "queued" or "saved" anywhere.
+3. **Common case — a synced portfolio file changes but its `change-log.md` line can't be written off-Mac:** make the synced edit (Cloud) or hand Pierre the text (mobile), and explicitly flag the owed `change-log.md` audit entry for the next Mac session rather than dropping it.
 
 ## 3. Read the destination before forming a view
 
 Before drafting anything — before even deciding what's worth keeping — read the existing material in the destination area, not just the single file you expect to append to:
 
-- If the target lives in a folder (e.g. `portfolio-manager/`), read every file in that folder you have access to, not only the one you're about to write into. On Mac, that's the full folder (`snapshot.md`, `profile.md`, `cashflow.md`, `resources-finance.md`, `change-log.md`). On mobile or Cloud, it's whatever's repo-synced — see §0's limitations for each.
+- If the target lives in a folder (e.g. `portfolio-manager/`), read every file in that folder you have access to, not only the one you're about to write into. On Mac, that's the full folder (`snapshot.md`, `profile.md`, `cashflow.md`, `net-worth.md`, `resources-finance.md`, `change-log.md`, `open-questions.md`). On Cloud/mobile, it's the repo-synced subset (everything except `change-log.md`, `open-questions.md`, `archive/`) — see §0.
 - If the target is a standalone file (`tools.md`, `business.md`, `product-playbooks.md`, `health.md`), read that file in full.
 - This applies to every domain, not just investments. If a domain later grows into a folder with several files (e.g. health splits into diet.md / labs.md / protocols.md), read all of them the same way — the rule is "read the destination area," not "read portfolio-manager specifically."
 
@@ -115,9 +116,9 @@ Apply the per-domain bar below when deciding what's even worth this treatment �
 
 Once it's clear which file this is headed for, apply that file's specific bar on top of the general one above — this is what keeps entries sharp instead of generic:
 
-- **`portfolio-manager/` (investments)** — Mac-only except `resources-finance.md`. Keep specific figures with their date/context, a thesis *with* its reasoning, tax/regulatory facts, and clear confidence framing. Drop generic market commentary, price predictions with no stated mechanism, hype. Route within the folder (Mac only): current portfolio figures → `snapshot.md` (+ dated line in `change-log.md`); thesis/tax/framework facts → `profile.md`; net-worth or cash-flow readings → `cashflow.md`; macro-event analyses and research-source assessments → `resources-finance.md` (repo-synced — this is the one mobile can actually reach). Never write history into `snapshot.md`.
+- **`portfolio-manager/` (investments)** — mostly repo-synced now (2026-08-02); only `change-log.md`, `open-questions.md`, `archive/` stay Mac-only. Keep specific figures with their date/context, a thesis *with* its reasoning, tax/regulatory facts, and clear confidence framing. Drop generic market commentary, price predictions with no stated mechanism, hype. Route within the folder: current portfolio figures → `snapshot.md` (+ dated line in `change-log.md` — **the change-log line is Mac-only, so off-Mac make the `snapshot.md` edit and flag the owed change-log entry for Mac**); thesis/tax/framework facts → `profile.md`; net-worth or cash-flow readings → `net-worth.md` / `cashflow.md`; macro-event analyses and research-source assessments → `resources-finance.md`. **Some detail is deliberately excluded from the synced files — follow `index.md`'s rules on what stays Mac-only and must never be written into a synced file (`snapshot.md` in particular carries redactions by design).** Never write history into `snapshot.md`.
 - **`business.md`** (CRO / EPAM work) — keep test methodology, sample sizes, effect sizes/conversion rates, named frameworks (ICE, Fogg, Cialdini, etc.) and tools, and results — flagged "single data point" when the source doesn't establish it as a real benchmark. Drop generic "always A/B test" advice and conversion-rate claims with no sample size attached.
-- **`health.md`** — Mac-only. Keep specific products, doses, protocols, mechanisms, and contraindications/caveats. Drop generic wellness advice not tied to a specific recommendation. On mobile or Cloud, see §2a — capture only, never extract.
+- **`health.md`** — repo-synced (2026-08-02; currently just a cosmetic skincare list, non-sensitive). Keep specific products, doses, protocols, mechanisms, and contraindications/caveats. Drop generic wellness advice not tied to a specific recommendation. If it ever grows to hold genuinely medical/sensitive data, revisit whether it should stay synced.
 - **`product-playbooks.md`** — keep concrete stack/tool choices with pricing tiers and upgrade thresholds, workflow steps, build-decision criteria. Drop generic productivity advice not tied to a specific stack decision.
 - **`tools.md`** — keep pricing, limits, benchmark numbers, licensing, named caveats/failure modes. Drop tool mentions with no concrete detail.
 - **`kb-system.md`** (the knowledge base itself) — the routing home for RAG / memory-system / knowledge-tooling resources (LLM wikis, agent memory, retrieval patterns), which previously defaulted to `tools.md`. Keep adoption criteria and thresholds, measured limits, failure modes, and concrete workflow mechanics; drop generic "second brain" productivity hype. Ingested entries land under `## Patterns & tools evaluated` or `## Ingestion stack` only — the `## Decisions` (append-only, dated) and `## Recall misses` sections are maintained by working sessions, never by ingestion.
@@ -142,7 +143,7 @@ Read the target file before drafting, if you haven't already in §3, and mirror 
 - **What:** one line
 - **Why useful:** the payoff, with numbers if the source gave them
 - **Caveat:** limits or failure modes
-- **Relevance:** which of Pierre's projects this touches
+- **Relevance for Pierre:** which of Pierre's projects this touches
 - **Source:** <url or "pasted transcript"> — added <YYYY-MM-DD>
 ```
 
